@@ -108,7 +108,7 @@ class AffineQuantizedObserverBase(ABC, torch.nn.Module):
     ):
         super().__init__()
         assert granularity is not None, "granularity is None"
-
+        assert zero_point_domain is not None, "zero_point_domain must not be None"
         self.mapping_type = mapping_type
         self.target_dtype = target_dtype
         self.granularity = granularity

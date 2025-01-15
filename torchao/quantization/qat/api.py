@@ -96,6 +96,7 @@ class FakeQuantizeConfig:
         group_size: Optional[int] = None,
         is_symmetric: Optional[bool] = None,
     ):
+        assert zero_point_domain is not None, "zero_point_domain must not be None"
         self.dtype = dtype
         self.granularity = self._get_granularity(granularity, group_size)
         self.mapping_type = self._get_mapping_type(mapping_type, is_symmetric)

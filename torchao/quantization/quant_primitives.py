@@ -316,6 +316,7 @@ def quantize_affine(
     Output:
       quantized tensor with requested dtype
     """
+    assert zero_point_domain is not None, "zero_point_domain must not be None"
     return _quantize_affine(
         input,
         block_size,
@@ -324,7 +325,7 @@ def quantize_affine(
         output_dtype,
         quant_min,
         quant_max,
-        zero_point_domain.name if zero_point_domain is not None else None,
+        zero_point_domain.name,
     )
 
 
@@ -372,7 +373,7 @@ def _quantize_affine_no_dtype_cast(
     zero_point: Optional[torch.Tensor],
     quant_min: Union[int, float],
     quant_max: Union[int, float],
-    quant_dtype: Optional[torch.dtype],
+    quant_dtype: torch.dtype,
     zero_point_domain: Optional[str] = ZeroPointDomain.INT.name,
 ) -> torch.Tensor:
     """
@@ -468,6 +469,7 @@ def dequantize_affine(
     Output:
       dequantized Tensor, with requested dtype or fp32
     """
+    assert zero_point_domain is not None, "zero_point_domain must not be None"
     return _dequantize_affine(
         input,
         block_size,
@@ -476,7 +478,7 @@ def dequantize_affine(
         input_dtype,
         quant_min,
         quant_max,
-        zero_point_domain.name if zero_point_domain is not None else None,
+        zero_point_domain.name,
         output_dtype=output_dtype,
     )
 
@@ -612,6 +614,7 @@ def fake_quantize_affine(
         value during quantization
         default is ZeroPointDomain.INT
     """
+    assert zero_point_domain is not None, "zero_point_domain must not be None"
     (_, fq) = _do_fake_quantize_affine(
         input,
         block_size,
@@ -654,6 +657,7 @@ def fake_quantize_affine_cachemask(
       )
 
     """
+    assert zero_point_domain is not None, "zero_point_domain must not be None"
     (q, dq) = _do_fake_quantize_affine(
         input,
         block_size,
@@ -753,6 +757,8 @@ def choose_qparams_affine(
     Output:
         Tuple of scales and zero_points Tensor with requested dtype
     """
+    if zero_point_domain is None:
+        raise ValueError("zero_point_domain must not be None")
     return _choose_qparams_affine(
         input,
         mapping_type.name,
@@ -764,7 +770,7 @@ def choose_qparams_affine(
         scale_dtype,
         zero_point_dtype,
         preserve_zero,
-        zero_point_domain.name if zero_point_domain is not None else None,
+        zero_point_domain.name,
     )
 
 
@@ -792,6 +798,8 @@ def choose_qparams_affine_with_min_max(
       difference: instead of passing in `input` Tensor and use that to calculate min_val/max_val
       and then scale/zero_point, we pass in min_val/max_val directly
     """
+    if zero_point_domain is None:
+        raise ValueError("zero_point_domain must not be None")
     return _choose_qparams_affine(
         None,
         mapping_type.name,
@@ -803,7 +811,7 @@ def choose_qparams_affine_with_min_max(
         scale_dtype,
         zero_point_dtype,
         preserve_zero,
-        zero_point_domain.name if zero_point_domain is not None else None,
+        zero_point_domain.name,
         min_val,
         max_val,
     )
@@ -911,7 +919,7 @@ def _choose_qparams_affine(
                 "preserve_zero == False is not supported for symmetric quantization"
             )
         if (
-            zero_point_domain is not None
+            zero_point_domain is not ZeroPointDomain.NONE.name
             and zero_point_domain == ZeroPointDomain.FLOAT.name
         ):
             # TODO INT should not be a valid ZeroPointDomain for symmetric quantization since

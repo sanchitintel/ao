@@ -58,6 +58,7 @@ class MarlinQQQTensor(AffineQuantizedTensor):
         zero_point_domain: Optional[ZeroPointDomain] = ZeroPointDomain.INT,
         _layout: Optional[Layout] = None,
     ):
+        assert zero_point_domain is not None, "zero_point_domain must not be None"
         original_shape = input_float.shape
         input_float = _layout.pre_process(input_float)
         nbits = int(math.log2(quant_max - quant_min + 1))
